@@ -284,11 +284,13 @@ class UnityModuleImpl implements UnityModule {
                 data: data
             }));
 
-            console.log(`REQUEST ${uuid}: ${JSON.stringify({
-                id: id,
-                type: type,
-                data: data
-            })}`);
+            if(__DEBUG_UNITY_VIEW__) {
+                console.log(`REQUEST ${uuid}: ${JSON.stringify({
+                    id: id,
+                    type: type,
+                    data: data
+                })}`);
+            }
 
             // Return cancellation handler
             return () => {
