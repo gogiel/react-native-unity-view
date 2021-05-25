@@ -26,7 +26,7 @@ export interface UnityMessage {
 
 export interface RawData {
     id: string;
-    type: UnityMessageType;
+    type: number;
     uuid?: number;
     data?: any;
 }
