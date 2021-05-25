@@ -14,6 +14,7 @@ export interface UnityMessage {
     readonly type: UnityMessageType;
     readonly uuid?: number;
     readonly data?: any;
+    readonly raw: RawData;
 
     isSimple(): boolean;
     isRequest(): boolean;
@@ -23,12 +24,23 @@ export interface UnityMessage {
     isError(): boolean;
 }
 
+export interface RawData {
+    id: string;
+    type: UnityMessageType;
+    uuid?: number;
+    data?: any;
+}
+
 export class UnityMessageImpl implements UnityMessage {
-    private m_json: UnityMessage;
+    private m_json: RawData;
 
     constructor(message: string) {
         message = message.replace(UnityMessagePrefix, '');
-        this.m_json = JSON.parse(message) as UnityMessage;;
+        this.m_json = JSON.parse(message);
+    }
+
+    public get raw(): RawData {
+        return this.m_json;
     }
 
     public get id(): string {
