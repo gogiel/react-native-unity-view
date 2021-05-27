@@ -83,10 +83,6 @@ export interface UnityModule {
      */
     resume(): void;
     /**
-     * Receive string and json message from unity.
-     */
-    addMessageListener(listener: (message: string | UnityMessageHandler) => void): number;
-    /**
      * Only receive string message from unity.
      */
     addStringMessageListener(listener: (message: string) => void): number;
@@ -313,13 +309,6 @@ class UnityModuleImpl implements UnityModule {
 
     public resume() {
         UnityNativeModule.resume();
-    }
-
-    public addMessageListener(listener: (handler: string | UnityMessageHandler) => void): number {
-        const id = this.getHandleId();
-        this.stringListeners[id] = listener;
-        this.unityMessageListeners[id] = listener;
-        return id;
     }
 
     public addStringMessageListener(listener: (message: string) => void): number {
