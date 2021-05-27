@@ -9,13 +9,14 @@ export enum UnityMessageType {
 
 export const UnityMessagePrefix = '@UnityMessage@';
 
-export interface UnityMessage {
-    readonly id: string;
-    readonly type: UnityMessageType;
-    readonly uuid?: number;
-    readonly data?: any;
-    readonly raw: RawData;
+export interface RawData {
+    id: string;
+    type: number;
+    uuid?: number;
+    data?: any;
+}
 
+export interface UnityMessage extends RawData {
     isSimple(): boolean;
     isRequest(): boolean;
     isRequestCompletion(): boolean;
@@ -24,23 +25,12 @@ export interface UnityMessage {
     isError(): boolean;
 }
 
-export interface RawData {
-    id: string;
-    type: number;
-    uuid?: number;
-    data?: any;
-}
-
 export class UnityMessageImpl implements UnityMessage {
     private m_json: RawData;
 
     constructor(message: string) {
         message = message.replace(UnityMessagePrefix, '');
         this.m_json = JSON.parse(message);
-    }
-
-    public get raw(): RawData {
-        return this.m_json;
     }
 
     public get id(): string {
