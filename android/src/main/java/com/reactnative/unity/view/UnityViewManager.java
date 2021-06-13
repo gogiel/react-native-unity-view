@@ -67,10 +67,6 @@ public class UnityViewManager extends SimpleViewManager<UnityView> implements Li
 
     @Override
     public void onHostPause() {
-        if (UnityUtils.isUnityReady()) {
-            // Don't use UnityUtils.pause()
-            UnityUtils.getPlayer().pause();
-        }
     }
 
     @Override
