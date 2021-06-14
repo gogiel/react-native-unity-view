@@ -144,9 +144,9 @@ public class UnityUtils {
         if (unityPlayer == null) {
             return;
         }
-        if (unityPlayer.getParent() != null) {
-            ((ViewGroup)unityPlayer.getParent()).removeView(unityPlayer);
-        }
+//         if (unityPlayer.getParent() != null) {
+//             ((ViewGroup)unityPlayer.getParent()).removeView(unityPlayer);
+//         }
         ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT);
         group.addView(unityPlayer, 0, layoutParams);
         unityPlayer.windowFocusChanged(true);
