@@ -26,9 +26,9 @@ public class UnityView extends FrameLayout {
     @Override
     public void onWindowFocusChanged(boolean hasWindowFocus) {
         super.onWindowFocusChanged(hasWindowFocus);
-        if (view != null) {
-            view.windowFocusChanged(hasWindowFocus);
-        }
+//         if (view != null) {
+//             view.windowFocusChanged(hasWindowFocus);
+//         }
     }
 
     @Override
