@@ -296,6 +296,8 @@ class UnityModuleImpl implements UnityModule {
             // Return cancellation handler
             return () => {
                 if (subscriber.closed && !isCompleted) {
+                    __DEBUG_UNITY_VIEW__ && console.log(`CANCELLING ${uuid}`)
+
                     removeResponseCallback(uuid);
                     // Cancel request when unsubscribed before getting a response
                     this.postMessageInternal(gameObject, methodName, UnityMessagePrefix + JSON.stringify({
