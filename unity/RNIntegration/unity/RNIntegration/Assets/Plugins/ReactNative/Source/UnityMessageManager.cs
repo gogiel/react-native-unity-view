@@ -588,7 +588,7 @@ namespace ReactNative
         private static string SerializeMessage(string id, object data)
         {
             string json = "{" +
-                $"\"{nameof(UnityMessage.id)}\":{JsonConvert.SerializeObject(id)}" +
+                $"\"{nameof(UnityMessage.id)}\":\"{id}\"" +
                 (data != null
                     ? $",\"{nameof(UnityMessage.data)}\":{JsonConvert.SerializeObject(data)}"
                     : string.Empty) +
@@ -606,7 +606,7 @@ namespace ReactNative
         private static string SerializeMessage(string id, int type, object data)
         {
             string json = "{" +
-                $"\"{nameof(UnityMessage.id)}\":{JsonConvert.SerializeObject(id)}" +
+                $"\"{nameof(UnityMessage.id)}\":\"{id}\"" +
                 $",\"{nameof(UnityMessage.type)}\":{type}" +
                 (data != null
                     ? $",\"{nameof(UnityMessage.data)}\":{JsonConvert.SerializeObject(data)}"
@@ -626,7 +626,7 @@ namespace ReactNative
         private static string SerializeRequest(string id, int uuid, int type, object data)
         {
             string json = "{" +
-                $"\"{nameof(UnityMessage.id)}\":{JsonConvert.SerializeObject(id)}" +
+                $"\"{nameof(UnityMessage.id)}\":\"{id}\"" +
                 $",\"{nameof(UnityMessage.type)}\":{type}" +
                 $",\"{nameof(UnityMessage.uuid)}\":{uuid}" +
                 (data != null
