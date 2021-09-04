@@ -5,8 +5,11 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
+using UniRx;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.Scripting;
 
 namespace ReactNative
@@ -66,7 +69,16 @@ namespace ReactNative
         /// Message is expected to be in UTF8 encoding.
         /// </remarks>
         public static void Send(string message)
-            => UnityMessageManager.onUnityMessage(message);
+        {
+            CheckMainThreadAccess();
+            UnityMessageManager.onUnityMessage(message);
+        }
+        public static UniTask SendAsync(string message, CancellationToken cancellationToken = default)
+        {
+            return MainThreadBoundaryAsync(
+                () => UnityMessageManager.onUnityMessage(message),
+                cancellationToken);
+        }
 
         /// <summary>
         /// Sends message with optional data.
@@ -84,7 +96,12 @@ namespace ReactNative
         /// constant to distinguish it from unformatted messages.
         /// </remarks>
         public static void Send(string id, object data = null)
-            => UnityMessageManager.SendPlainInternal(id, data);
+        {
+            CheckMainThreadAccess();
+            UnityMessageManager.SendPlainInternal(id, data);
+        }
+        public static UniTask SendAsync(string id, object data = null, CancellationToken cancellationToken = default)
+            => UnityMessageManager.SendPlainInternalAsync(id, data, cancellationToken);
 
         /// <summary>
         /// Sends message with data.
@@ -102,9 +119,13 @@ namespace ReactNative
         /// Raw message is automatically prefixed with <see cref="UnityMessageManager.MessagePrefix" /> 
         /// constant to distinguish it from unformatted messages.
         /// </remarks>
-        public static void Send<TMessageType>(string id, IUnityMessage<TMessageType> message)
-            where TMessageType : Enum
-            => UnityMessageManager.SendPlainInternal(id, (int)(object)message.Type(), message);
+        public static void Send<TMessageType>(string id, IUnityMessage<TMessageType> message) where TMessageType : Enum
+        {
+            CheckMainThreadAccess();
+            UnityMessageManager.SendPlainInternal(id, (int)(object)message.Type(), message);
+        }
+        public static UniTask SendAsync<TMessageType>(string id, IUnityMessage<TMessageType> message, CancellationToken cancellationToken = default) where TMessageType : Enum
+            => UnityMessageManager.SendPlainInternalAsync(id, (int)(object)message.Type(), message, cancellationToken);
 
         /// <summary>
         /// Sends message with optional data.
@@ -124,7 +145,12 @@ namespace ReactNative
         /// constant to distinguish it from unformatted messages.
         /// </remarks>
         public static void Send(string id, int type, object data = null)
-            => UnityMessageManager.SendPlainInternal(id, type, data);
+        {
+            CheckMainThreadAccess();
+            UnityMessageManager.SendPlainInternal(id, type, data);
+        }
+        public static UniTask SendAsync(string id, int type, object data = null, CancellationToken cancellationToken = default)
+            => UnityMessageManager.SendPlainInternalAsync(id, type, data, cancellationToken);
 
         /// <summary>
         /// Sends request message with optional data.
@@ -145,31 +171,8 @@ namespace ReactNative
         /// Message is automatically prefixed with <see cref="UnityMessageManager.MessagePrefix" /> 
         /// constant to distinguish it from unformatted messages.
         /// </remarks>
-        public static async UniTask<UnityMessage> SendAsync<TMessageType>(string id, IUnityRequest<TMessageType> request, CancellationToken cancellationToken = default(CancellationToken))
-            where TMessageType : Enum
-            => await UnityMessageManager.instance.SendRequestAsync<UnityMessage>(id, (int)(object)request.Type(), request, cancellationToken);
-
-        /// <summary>
-        /// Sends request message with optional data.
-        /// </summary>
-        /// <param name="id">The message id (identifying target).</param>
-        /// <param name="type">The request type (to identify response).</param>
-        /// <param name="data">(optional) The data attached to the message.</param>
-        /// <returns>Response message from the target.</returns>
-        /// <remarks>
-        /// Message format:
-        ///  {
-        ///    "id": MESSAGE_TARGET_ID, // <paramref name="id" />
-        ///    "type": SERIALIZED_TYPE, // <paramref name="type" />
-        ///    "data": SERIALIZED_DATA, // <paramref name="data" />
-        ///    "uuid": UNIQUE_REQUEST_IDENTIFIER // Exists only when <paramref name="onResponse" /> callback is provided
-        ///  }
-        ///  
-        /// Message is automatically prefixed with <see cref="UnityMessageManager.MessagePrefix" /> 
-        /// constant to distinguish it from unformatted messages.
-        /// </remarks>
-        public static async UniTask<UnityMessage> SendAsync(string id, int type, object data = null, CancellationToken cancellationToken = default(CancellationToken))
-            => await UnityMessageManager.instance.SendRequestAsync<UnityMessage>(id, type, data, cancellationToken);
+        public static UniTask<UnityMessage> SendAsync<TMessageType>(string id, IUnityRequest<TMessageType> request, CancellationToken cancellationToken = default(CancellationToken)) where TMessageType : Enum
+            => UnityMessageManager.instance.SendRequestAsync<UnityMessage>(id, (int)(object)request.Type(), request, cancellationToken);
 
         /// <summary>
         /// Sends request message with optional data.
@@ -189,9 +192,8 @@ namespace ReactNative
         /// Message is automatically prefixed with <see cref="UnityMessageManager.MessagePrefix" /> 
         /// constant to distinguish it from unformatted messages.
         /// </remarks>
-        public static async UniTask<TResponse> SendAsync<TMessageType, TResponse>(string id, IUnityRequest<TMessageType> request, CancellationToken cancellationToken = default(CancellationToken))
-            where TMessageType : Enum
-            => await UnityMessageManager.instance.SendRequestAsync<TResponse>(id, (int)(object)request.Type(), request, cancellationToken);
+        public static UniTask<TResponse> SendAsync<TMessageType, TResponse>(string id, IUnityRequest<TMessageType> request, CancellationToken cancellationToken = default(CancellationToken)) where TMessageType : Enum
+            => UnityMessageManager.instance.SendRequestAsync<TResponse>(id, (int)(object)request.Type(), request, cancellationToken);
 
         /// <summary>
         /// Sends request message with optional data.
@@ -212,8 +214,8 @@ namespace ReactNative
         /// Message is automatically prefixed with <see cref="UnityMessageManager.MessagePrefix" /> 
         /// constant to distinguish it from unformatted messages.
         /// </remarks>
-        public static async UniTask<T> SendAsync<T>(string id, int type, object data = null, CancellationToken cancellationToken = default(CancellationToken))
-            => await UnityMessageManager.instance.SendRequestAsync<T>(id, type, data, cancellationToken);
+        public static UniTask<T> SendAsync<T>(string id, int type, object data = null, CancellationToken cancellationToken = default(CancellationToken))
+            => UnityMessageManager.instance.SendRequestAsync<T>(id, type, data, cancellationToken);
 
         /// <summary>
         /// Subscribes a new message handler to listen for a given message id.
@@ -242,7 +244,7 @@ namespace ReactNative
             try
             {
                 this.AddOutboundRequest(uuid, awaiter);
-                SendRequestInternal(id, uuid, type, data);
+                await SendRequestInternalAsync(id, uuid, type, data, cancellationToken);
 
                 UnityMessage unityMessage;
                 using (cancellationToken.Register(() => SendCancel(id, uuid)))
@@ -646,7 +648,16 @@ namespace ReactNative
         {
             string json = SerializeMessage(id, data);
 
+            CheckMainThreadAccess();
             UnityMessageManager.onUnityMessage(MessagePrefix + json);
+        }
+        private static async UniTask SendPlainInternalAsync(string id, object data, CancellationToken cancellationToken)
+        {
+            string json = SerializeMessage(id, data);
+
+            await MainThreadBoundaryAsync(
+                () => UnityMessageManager.onUnityMessage(MessagePrefix + json),
+                cancellationToken);
         }
 
         /// <summary>
@@ -659,7 +670,16 @@ namespace ReactNative
         {
             string json = SerializeMessage(id, type, data);
 
+            CheckMainThreadAccess();
             UnityMessageManager.onUnityMessage(MessagePrefix + json);
+        }
+        private static async UniTask SendPlainInternalAsync(string id, int type, object data, CancellationToken cancellationToken)
+        {
+            string json = SerializeMessage(id, type, data);
+
+            await MainThreadBoundaryAsync(
+                () => UnityMessageManager.onUnityMessage(MessagePrefix + json),
+                cancellationToken);
         }
 
         /// <summary>
@@ -669,11 +689,13 @@ namespace ReactNative
         /// <param name="uuid">The unique request ID.</param>
         /// <param name="type">The type of the request.</param>
         /// <param name="data">The optional request data.</param>
-        private static void SendRequestInternal(string id, int uuid, int type, object data)
+        private static async UniTask SendRequestInternalAsync(string id, int uuid, int type, object data, CancellationToken cancellationToken)
         {
             string json = SerializeRequest(id, uuid, type, data);
 
-            UnityMessageManager.onUnityMessage(MessagePrefix + json);
+            await MainThreadBoundaryAsync(
+                () => UnityMessageManager.onUnityMessage(MessagePrefix + json),
+                cancellationToken);
         }
 
         /// <summary>
@@ -693,6 +715,7 @@ namespace ReactNative
                     : string.Empty) +
                 "}";
 
+            CheckMainThreadAccess();
             UnityMessageManager.onUnityMessage(MessagePrefix + json);
         }
 
@@ -709,6 +732,7 @@ namespace ReactNative
                 $",\"{nameof(UnityMessage.uuid)}\":{uuid}" +
                 "}";
 
+            CheckMainThreadAccess();
             UnityMessageManager.onUnityMessage(MessagePrefix + json);
         }
 
@@ -725,6 +749,7 @@ namespace ReactNative
                 $",\"{nameof(UnityMessage.uuid)}\":{uuid}" +
                 "}";
 
+            CheckMainThreadAccess();
             UnityMessageManager.onUnityMessage(MessagePrefix + json);
         }
 
@@ -745,7 +770,25 @@ namespace ReactNative
                     : string.Empty) +
                 "}";
 
+            CheckMainThreadAccess();
             UnityMessageManager.onUnityMessage(MessagePrefix + json);
+        }
+
+        private static void CheckMainThreadAccess([CallerMemberName] string methodName = default)
+            => Assert.IsTrue(PlayerLoopHelper.IsMainThread, $"{nameof(UnityMessageManager)}.{methodName} should be called form the Unity's MainThread.");
+
+        private static async UniTask MainThreadBoundaryAsync(Action action, CancellationToken cancellationToken)
+        {
+            if (PlayerLoopHelper.IsMainThread)
+            {
+                action();
+            }
+            else
+            {
+                await UniTask.SwitchToMainThread(cancellationToken);
+                action();
+                await UniTask.SwitchToTaskPool();
+            }
         }
     }
 }
