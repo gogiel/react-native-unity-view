@@ -22,7 +22,7 @@ namespace ReactNative
     }
 
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = true)]
-    public sealed class UnityReverseRequestAttribute : Attribute
+    public sealed class UnityReverseRequestAttribute : PreserveAttribute
     {
         public UnityReverseRequestAttribute(string id)
         {
